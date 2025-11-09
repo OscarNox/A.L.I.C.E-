@@ -71,7 +71,7 @@ if __name__ == "__main__":
     while True:
         texto_usuario = escuchar()
         if texto_usuario:
-            if "salir" in texto_usuario or "adiós" in texto_usuario:
+            if "salir" in texto_usuario or "adiós" in texto_usuario or "chao" in texto_usuario:
                 hablar("Hasta luego Oscar. Que tengas un excelente día.")
                 break
             elif "cómo estás" in texto_usuario:
