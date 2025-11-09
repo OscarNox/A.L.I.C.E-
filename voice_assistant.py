@@ -1,23 +1,31 @@
 # voice_assistant.py
-# 🟣 Asistente de voz A.L.I.C.E. con escucha y respuesta por voz
+# 🟣 Asistente de voz A.L.I.C.E. con escucha y respuesta por voz + ChatGPT integrado
 
 import os
 import speech_recognition as sr
 from elevenlabs import ElevenLabs
+from openai import OpenAI
+from dotenv import load_dotenv
 
-# 🔹 Configuración del API de ElevenLabs
-ELEVEN_API_KEY = "sk_1b381e672368f29bfd55d7cdb05cadb99b2cb2d8242815d1"
+# Cargar las claves desde el archivo .env
+load_dotenv()
+
+# 🔹 Configuración de APIs
+ELEVEN_API_KEY = os.getenv("sk_1b381e672368f29bfd55d7cdb05cadb99b2cb2d8242815d1")
+OPENAI_API_KEY = os.getenv("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")
+
 client = ElevenLabs(api_key=ELEVEN_API_KEY)
+chat_client = OpenAI(api_key=OPENAI_API_KEY)
 
-# 🔹 Voz femenina fija
+# 🔹 Configuración de voz
 VOICE_ID = "EYBbN7OENxAX5QX56IiW"
 
 # 🔹 Identidad del asistente
 ASISTENTE_NOMBRE = "Alice"
 ASISTENTE_GENERO = "femenino"
 ASISTENTE_PERSONALIDAD = (
-    "Soy Alice, tu asistente de voz. Tengo una voz cálida y profesional. "
-    "Estoy aquí para ayudarte en lo que necesites."
+    "Eres Alice, una asistente de voz femenina, cálida, profesional e inteligente. "
+    "Hablas en tono amable y natural, con voz empática."
 )
 
 # 🔹 Función para hablar
@@ -41,10 +49,9 @@ def hablar(texto):
         for chunk in audio:
             if chunk:
                 f.write(chunk)
-
     os.system("start " + audio_path)
 
-# 🔹 Función para escuchar desde el micrófono
+# 🔹 Escuchar desde micrófono
 def escuchar():
     recognizer = sr.Recognizer()
     with sr.Microphone() as source:
@@ -63,6 +70,22 @@ def escuchar():
         print("⚠️ Error con el servicio de reconocimiento.")
         return None
 
+# 🔹 Obtener respuesta de ChatGPT
+def responder_chatgpt(pregunta):
+    if not pregunta:
+        return "No entendí lo que dijiste."
+
+    response = chat_client.chat.completions.create(
+        model="gpt-4o-mini",
+        messages=[
+            {"role": "system", "content": ASISTENTE_PERSONALIDAD},
+            {"role": "user", "content": pregunta}
+        ]
+    )
+
+    respuesta = response.choices[0].message.content
+    return respuesta
+
 # 🔹 Programa principal
 if __name__ == "__main__":
     print(f"🔊 Iniciando {ASISTENTE_NOMBRE} ({ASISTENTE_GENERO})...\n")
@@ -70,15 +93,13 @@ if __name__ == "__main__":
 
     while True:
         texto_usuario = escuchar()
-        if texto_usuario:
-            if "salir" in texto_usuario or "adiós" in texto_usuario or "chao" in texto_usuario:
-                hablar("Hasta luego Oscar. Que tengas un excelente día.")
-                break
-            elif "cómo estás" in texto_usuario:
-                hablar("Estoy muy bien, gracias por preguntar. ¿Y tú?")
-            elif "tu nombre" in texto_usuario:
-                hablar("Me llamo Alice, tu asistente de voz personal.")
-            elif "ayuda" in texto_usuario:
-                hablar("Puedo escucharte y responderte por voz. Solo dime qué necesitas.")
-            else:
-                hablar(f"Entendí que dijiste: {texto_usuario}. Aún estoy aprendiendo a responder más preguntas.")
+        if not texto_usuario:
+            continue
+
+        if any(saludo in texto_usuario for saludo in ["salir", "adiós", "chao", "terminar"]):
+            hablar("Hasta luego Oscar. Que tengas un excelente día.")
+            break
+        else:
+            respuesta = responder_chatgpt(texto_usuario)
+            hablar(respuesta)
+
