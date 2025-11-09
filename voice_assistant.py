@@ -53,4 +53,4 @@ def hablar(texto):
 if __name__ == "__main__":
     print(f"🔊 Iniciando {ASISTENTE_NOMBRE} ({ASISTENTE_GENERO})...\n")
     hablar("Hola Oscar, soy Alice, tu asistente de voz. Estoy lista para ayudarte con lo que necesites. Puedes pedirme que hable, piense o te ayude con tareas paso a paso.")
-
+ 
