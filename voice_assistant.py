@@ -1,6 +1,3 @@
-# voice_assistant.py
-# 🟣 Asistente de voz A.L.I.C.E. con escucha y respuesta por voz
-
 import os
 import speech_recognition as sr
 from elevenlabs import ElevenLabs
